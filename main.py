@@ -1,7 +1,14 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import joblib
+import os
+
+API_KEY = os.environ['API_KEY']
+
+async def verify_api_key(x_api_key: str = Header(None)):
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing API Key")
 
 # 1. Initialize the App
 app = FastAPI(title="Phishing Detector API")
@@ -13,7 +20,6 @@ app.add_middleware(
     allow_methods=["*"],     # GET, POST, etc.
     allow_headers=["*"],     # allow any headers
 )
-
 
 # 2. Load the Model (The "Brain")
 # We load this globally so we don't have to reload it for every single request (Efficiency!)
