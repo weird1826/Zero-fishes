@@ -8,10 +8,10 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
     resultDiv.style.display = 'none';
 
     try {
-        // 1. Get the current active tab
+        // Get the current active tab
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-        // 2. Execute script to grab text from the page
+        // Execute script to grab text from the page
         const extraction = await chrome.scripting.executeScript({
             target: { tabId: tab.id },
             func: () => document.body.innerText // This runs inside the web page
@@ -24,9 +24,8 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
 
         btn.innerText = "Analyzing with AI...";
 
-        // 3. Send to your Azure API
-        // REPLACE with your actual URL
-        const response = await fetch('https://YOUR-APP-NAME.azurewebsites.net/predict', {
+        // Send this to API
+        const response = await fetch('https://ml-powered-phishing-api.onrender.com/predict', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -37,13 +36,13 @@ document.getElementById('scanBtn').addEventListener('click', async () => {
 
         const data = await response.json();
 
-        // 4. Show Result
+        // Show Result
         resultDiv.style.display = 'block';
         if (data.is_phishing) {
-            resultDiv.textContent = `🚨 PHISHING DETECTED (${(data.confidence * 100).toFixed(1)}%)`;
+            resultDiv.textContent = `PHISHING DETECTED (${(data.confidence * 100).toFixed(1)}%)`;
             resultDiv.className = 'phishing';
         } else {
-            resultDiv.textContent = `✅ Page Looks Safe (${(data.confidence * 100).toFixed(1)}%)`;
+            resultDiv.textContent = `Page Looks Safe (${(data.confidence * 100).toFixed(1)}%)`;
             resultDiv.className = 'safe';
         }
 
